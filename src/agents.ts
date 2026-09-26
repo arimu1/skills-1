@@ -77,6 +77,17 @@ export function isPositAssistantInstalled(
   return pathExists(join(homeDir, '.posit/assistant')) || pathExists(join(homeDir, '.positai'));
 }
 
+export function isAstrBotProjectInstalled(
+  cwd = process.cwd(),
+  pathExists: (path: string) => boolean = existsSync
+) {
+  // Project-local markers only — not ASTRBOT_ROOT, ~/.astrbot, or bare data/.
+  if (pathExists(join(cwd, 'astrbot'))) {
+    return true;
+  }
+  return pathExists(join(cwd, 'data', 'plugins'));
+}
+
 export function isAstrBotInstalled(
   cwd = process.cwd(),
   homeDir = home,
@@ -88,11 +99,7 @@ export function isAstrBotInstalled(
   if (pathExists(join(homeDir, '.astrbot'))) {
     return true;
   }
-  // AstrBot source checkout or initialized instance — not a generic data/ folder.
-  if (pathExists(join(cwd, 'astrbot'))) {
-    return true;
-  }
-  return pathExists(join(cwd, 'data', 'plugins'));
+  return isAstrBotProjectInstalled(cwd, pathExists);
 }
 
 export const agents: Record<AgentType, AgentConfig> = {
